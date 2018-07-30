@@ -5,8 +5,8 @@ void ofApp::setup(){
 	ofSetVerticalSync(true);
 	
 	
-	//	ofSetLogLevel(OF_LOG_VERBOSE);
-	
+//	ofSetLogLevel(OF_LOG_VERBOSE);
+		
 	serial.listDevices();
 	vector <ofSerialDeviceInfo> deviceList = serial.getDeviceList();
 	
@@ -27,37 +27,19 @@ void ofApp::setup(){
 void ofApp::update(){
 	
 	if(serialOk){
-		while (serial.available() > 0) {
+		while (serial.available()) {
 			int i1 = serial.readByte();
-			if(i1 != OF_SERIAL_NO_DATA && i1 != OF_SERIAL_ERROR) {
-				//				cout << i1 << endl;
-				if(i1 != '\n'){
-					inputString += (unsigned char)i1;
-				}else{
-						//					cout<< inputString << endl;
-					vector<string> numbers = ofSplitString(inputString, ",");
-					ints.resize(numbers.size());
-					for(int i =0; i < numbers.size(); i++){
-						ints[i] = ofToInt(numbers[i]);
-					}
-					cout << ofToString(ints) << endl;
-					
-					
-					inputString = "";
-				}
+			int i2 = serial.readByte();
+			int result = (i1 & 0xFF) | 
+						 ((i2 & 0xFF) << 8);
+//						 ((i3 << 16) & 0xFF)) |
+//						 ((i4 << 24) & 0xFF)) 
+			if(i1 != OF_SERIAL_NO_DATA && i1 != OF_SERIAL_ERROR &&
+				i2 != OF_SERIAL_NO_DATA && i2 != OF_SERIAL_ERROR) {
+				cout << result << endl;
 			}
 		}
 	}
 }
 
 //--------------------------------------------------------------
-void ofApp::draw(){
-	
-	ofSetColor(0);
-	if(ints.size()){
-		float w = ofGetWidth() / ints.size();
-		for(int i = 0; i < ints.size(); i++){
-			ofDrawRectangle(i*w, 0,w, ofMap(ints[i], 0, 1023, 0, ofGetHeight()));
-		}
-	}
-}
