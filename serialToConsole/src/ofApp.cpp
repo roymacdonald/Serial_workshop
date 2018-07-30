@@ -27,13 +27,37 @@ void ofApp::setup(){
 void ofApp::update(){
 	
 	if(serialOk){
-		while (serial.available()) {
+		while (serial.available() > 0) {
 			int i1 = serial.readByte();
 			if(i1 != OF_SERIAL_NO_DATA && i1 != OF_SERIAL_ERROR) {
-				cout << i1 << endl;
+//				cout << i1 << endl;
+				if(i1 != '\n'){
+					inputString += (unsigned char)i1;
+				}else{
+//					cout<< inputString << endl;
+					vector<string> numbers = ofSplitString(inputString, ",");
+					ints.resize(numbers.size());
+					for(int i =0; i < numbers.size(); i++){
+						ints[i] = ofToInt(numbers[i]);
+					}
+					cout << ofToString(ints) << endl;
+
+					
+					inputString = "";
+				}
 			}
 		}
 	}
 }
 
 //--------------------------------------------------------------
+void ofApp::draw(){
+
+	ofSetColor(0);
+	if(ints.size()){
+	float w = ofGetWidth() / ints.size();
+	for(int i = 0; i < ints.size(); i++){
+		ofDrawRectangle(i*w, 0,w, ofMap(ints[i], 0, 1023, 0, ofGetHeight()));
+	}
+	}
+}
